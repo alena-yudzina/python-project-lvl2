@@ -1,5 +1,5 @@
-gendiff:
-	poetry run gendiff
+start:
+	poetry run gendiff ../one.json ../two.json
 
 install:
 	poetry install
