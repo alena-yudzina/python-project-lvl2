@@ -6,8 +6,9 @@ import json
 
 
 def make_diff_str(first_json, second_json):
-    temp_dict = first_json.copy()
-    temp_dict.update(second_json)
+    #temp_dict = first_json.copy()
+    #temp_dict.update(second_json)
+    temp_dict = {**first_json, **second_json}
     keys = sorted(list(temp_dict.keys()))
     result = '{\n'
     for key in keys:
