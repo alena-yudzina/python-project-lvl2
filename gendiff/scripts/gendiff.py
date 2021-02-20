@@ -5,56 +5,82 @@ import os
 import json
 
 
-def make_diff_str(first_json, second_json):
-    #temp_dict = first_json.copy()
-    #temp_dict.update(second_json)
+def convert_to_json_format(value):
+    if value is True:
+        return 'true'
+    if value is False:
+        return 'false'
+    if value is None:
+        return 'null'
+    return value
+
+
+def make_diff(jsons):
+    first_json = {k: convert_to_json_format(v) for k,
+                  v in jsons[0].items()}
+    second_json = {k: convert_to_json_format(v) for k,
+                   v in jsons[1].items()}
     temp_dict = {**first_json, **second_json}
     keys = sorted(list(temp_dict.keys()))
     result = '{\n'
     for key in keys:
-        if key in first_json.keys():
-            if key in second_json.keys():
-                if first_json[key] == second_json[key]:
-                    result += f'    {key}: {first_json[key]}\n'
-                else:
-                    result += f'  - {key}: {first_json[key]}\n'
-                    result += f'  + {key}: {second_json[key]}\n'
+        is_in_first = key in first_json.keys()
+        is_in_second = key in second_json.keys()
+        if is_in_first and is_in_second:
+            if first_json[key] == second_json[key]:
+                result += f'    {key}: {first_json[key]}\n'
             else:
                 result += f'  - {key}: {first_json[key]}\n'
-        else:
+                result += f'  + {key}: {second_json[key]}\n'
+        elif is_in_first:
+            result += f'  - {key}: {first_json[key]}\n'
+        elif is_in_second:
             result += f'  + {key}: {second_json[key]}\n'
     end_symb = '}'
     return f'{result}{end_symb}'
 
 
-def generate_diff(first_path, second_path):
-    first_file = Path(first_path)
-    if not first_file.exists():
-        frm = inspect.stack()[1]
-        mod = inspect.getmodule(frm[0])
-        first_file = Path('{}/{}'.format(os.path.dirname(mod.__file__),
-                          first_path))
+def parse_cli_args():
+    ''' parse arguments from cli
 
-    second_file = Path(second_path)
-    if not second_file.exists():
-        frm = inspect.stack()[1]
-        mod = inspect.getmodule(frm[0])
-        second_file = Path('{}/{}'.format(os.path.dirname(mod.__file__),
-                           second_path))
-
-    first_json = json.load(open(first_file))
-    second_json = json.load(open(second_file))
-
-    print(make_diff_str(first_json, second_json))
-
-
-def main():
+    '''
     parser = argparse.ArgumentParser(description='Generate diff')
     parser.add_argument('-f', '--format', help='set format of output')
     parser.add_argument('first_file', type=argparse.FileType('r'))
     parser.add_argument('second_file', type=argparse.FileType('r'))
     args = parser.parse_args()
-    generate_diff(args.first_file.name, args.second_file.name)
+    return (args.first_file.name, args.second_file.name)
+
+
+def get_file_path(path_arg):
+    '''get path argument and return working file path
+
+    '''
+    path = Path(path_arg)
+    print(path)
+    if not path.exists():
+        frm = inspect.stack()[1]
+        mod = inspect.getmodule(frm[0])
+        path = Path('{}/{}'.format(os.path.dirname(mod.__file__), path_arg))
+    return path
+
+
+def generate_diff(*paths):
+    paths = [*paths]
+    for i, path in enumerate(paths):
+        paths[i] = Path(path)
+        if not paths[i].exists():
+            frm = inspect.stack()[1]
+            mod = inspect.getmodule(frm[0])
+            paths[i] = Path(mod.__file__).parent/paths[i].name
+
+    jsons = list(map(lambda path: json.load(open(path)), paths))
+    print(make_diff(jsons))
+
+
+def main():
+    first_path, second_path = parse_cli_args()
+    generate_diff(first_path, second_path)
 
 
 if __name__ == "__main__":
