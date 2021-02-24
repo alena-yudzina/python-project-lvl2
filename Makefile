@@ -5,7 +5,7 @@ test:
 	poetry run pytest -vv
 
 test-coverage:
-	poetry run pytest --cov=gendiff tests/
+	poetry run coverage run -m pytest -vv
 
 install:
 	poetry install
