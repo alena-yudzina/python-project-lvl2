@@ -6,6 +6,7 @@ test:
 
 test-coverage:
 	poetry run coverage run -m pytest -vv
+	poetry run coverage xml
 
 install:
 	poetry install
