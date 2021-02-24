@@ -27,26 +27,26 @@ def parse_cli_args():
 
 
 def get_diff(json_dicts):
-    first_json = {k: convert_to_json_format(v) for k,
-                  v in json_dicts[0].items()}
-    second_json = {k: convert_to_json_format(v) for k,
-                   v in json_dicts[1].items()}
-    merge_dict = {**first_json, **second_json}
+    dicts = []
+    for dct in json_dicts:
+        dct = {k: convert_to_json_format(v) for k, v in dct.items()}
+        dicts.append(dct)
+    merge_dict = {**dicts[0], **dicts[1]}
     keys = sorted(list(merge_dict.keys()))
     result = '{\n'
     for key in keys:
-        is_in_first = key in first_json.keys()
-        is_in_second = key in second_json.keys()
+        is_in_first = key in dicts[0].keys()
+        is_in_second = key in dicts[1].keys()
         if is_in_first and is_in_second:
-            if first_json[key] == second_json[key]:
-                result += f'    {key}: {first_json[key]}\n'
+            if dicts[0][key] == dicts[1][key]:
+                result += f'    {key}: {dicts[0][key]}\n'
             else:
-                result += f'  - {key}: {first_json[key]}\n'
-                result += f'  + {key}: {second_json[key]}\n'
+                result += f'  - {key}: {dicts[0][key]}\n'
+                result += f'  + {key}: {dicts[1][key]}\n'
         elif is_in_first:
-            result += f'  - {key}: {first_json[key]}\n'
+            result += f'  - {key}: {dicts[0][key]}\n'
         else:
-            result += f'  + {key}: {second_json[key]}\n'
+            result += f'  + {key}: {dicts[1][key]}\n'
     result += '}'
     return result
 
