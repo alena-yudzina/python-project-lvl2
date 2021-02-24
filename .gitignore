@@ -4,3 +4,5 @@ __pycache__
 dist/
 *.DS_Store
 .vscode/
+.coverage
+coverage.xml
