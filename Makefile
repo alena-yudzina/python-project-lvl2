@@ -1,6 +1,9 @@
 start:
 	poetry run gendiff ../one.json ../two.json
 
+test:
+	poetry run pytest -vv
+
 install:
 	poetry install
 
