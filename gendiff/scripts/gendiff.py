@@ -2,9 +2,14 @@ import argparse
 import inspect
 from pathlib import Path
 import json
+import yaml
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
 
-def convert_to_json_format(value):
+def convert_to_output_format(value):
     if value is True:
         return 'true'
     if value is False:
@@ -26,10 +31,10 @@ def parse_cli_args():
     return (args.first_file.name, args.second_file.name)
 
 
-def get_diff(json_dicts):
+def get_diff(python_dicts):
     dicts = []
-    for dct in json_dicts:
-        dct = {k: convert_to_json_format(v) for k, v in dct.items()}
+    for dct in python_dicts:
+        dct = {k: convert_to_output_format(v) for k, v in dct.items()}
         dicts.append(dct)
     merge_dict = {**dicts[0], **dicts[1]}
     keys = sorted(list(merge_dict.keys()))
@@ -60,8 +65,12 @@ def generate_diff(*paths):
             mod = inspect.getmodule(frm[0])
             paths[i] = Path(mod.__file__).parent / paths[i].name
 
-    json_dicts = list(map(lambda path: json.load(open(path)), paths))
-    diff = get_diff(json_dicts)
+    if paths[0].suffix == '.json':
+        python_dicts = list(map(lambda path: json.load(open(path)), paths))
+    else:
+        python_dicts = list(map(lambda path: yaml.load(open(path),
+                                Loader=Loader), paths))
+    diff = get_diff(python_dicts)
     print(diff)
 
 

@@ -1,5 +1,5 @@
 start:
-	poetry run gendiff ../one.json ../two.json
+	poetry run gendiff ../one.yaml ../two.yaml
 
 test:
 	poetry run pytest -vv
