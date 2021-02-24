@@ -43,9 +43,9 @@ def get_diff(json_dicts):
             else:
                 result += f'  - {key}: {first_json[key]}\n'
                 result += f'  + {key}: {second_json[key]}\n'
-        if is_in_first:
+        elif is_in_first:
             result += f'  - {key}: {first_json[key]}\n'
-        if is_in_second:
+        else:
             result += f'  + {key}: {second_json[key]}\n'
     result += '}'
     return result
@@ -58,12 +58,17 @@ def generate_diff(*paths):
         if not paths[i].exists():
             frm = inspect.stack()[1]
             mod = inspect.getmodule(frm[0])
-            paths[i] = Path(mod.__file__).parent/paths[i].name
+            paths[i] = Path(mod.__file__).parent / paths[i].name
 
     json_dicts = list(map(lambda path: json.load(open(path)), paths))
     diff = get_diff(json_dicts)
     print(diff)
 
 
+def main():
+    args = parse_cli_args()
+    generate_diff(*args)
+
+
 if __name__ == "__main__":
-    generate_diff()
+    main()

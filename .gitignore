@@ -1,5 +1,4 @@
 .venv/
-/tests/fixtures/*
 *.pyc
 __pycache__
 dist/

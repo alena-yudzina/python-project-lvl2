@@ -1,7 +1,7 @@
 # import pytest
 import json
 from pathlib import Path
-from gendiff.scripts.gendiff import make_diff
+from gendiff.scripts.gendiff import get_diff
 
 
 def get_fixture_path(file_name):
@@ -15,12 +15,12 @@ def read(file_path):
     return result
 
 
-plain_jsons = read(get_fixture_path('plain_json.txt')).rstrip().split('\n\n')
-results = read(get_fixture_path('results.txt')).rstrip().split('\n\n')
+plain_jsons = read(get_fixture_path('plain_json.txt')).split('\n\n')
+results = read(get_fixture_path('results.txt')).split('\n\n')
 
 
-def test_make_diff():
-    assert make_diff(json.loads(plain_jsons[0]),
-                     json.loads(plain_jsons[1])) == results[0]
-    assert make_diff(json.loads(plain_jsons[1]),
-                     json.loads(plain_jsons[2])) == results[1]
+def test_get_diff():
+    assert get_diff([json.loads(plain_jsons[0]),
+                    json.loads(plain_jsons[1])]) == results[0]
+    assert get_diff([json.loads(plain_jsons[1]),
+                    json.loads(plain_jsons[2])]) == results[1]
