@@ -1,5 +1,6 @@
 import argparse
 import inspect
+from .parser import get_diff
 from pathlib import Path
 import json
 import yaml
@@ -9,14 +10,13 @@ except ImportError:
     from yaml import Loader
 
 
-def convert_to_output_format(value):
-    if value is True:
-        return 'true'
-    if value is False:
-        return 'false'
-    if value is None:
-        return 'null'
-    return value
+def read_files(paths):
+    if paths[0].suffix == '.json':
+        python_dicts = list(map(lambda path: json.load(open(path)), paths))
+    else:
+        python_dicts = list(map(lambda path: yaml.load(open(path),
+                                Loader=Loader), paths))
+    return python_dicts
 
 
 def parse_cli_args():
@@ -31,31 +31,6 @@ def parse_cli_args():
     return (args.first_file.name, args.second_file.name)
 
 
-def get_diff(python_dicts):
-    dicts = []
-    for dct in python_dicts:
-        dct = {k: convert_to_output_format(v) for k, v in dct.items()}
-        dicts.append(dct)
-    merge_dict = {**dicts[0], **dicts[1]}
-    keys = sorted(list(merge_dict.keys()))
-    result = '{\n'
-    for key in keys:
-        is_in_first = key in dicts[0].keys()
-        is_in_second = key in dicts[1].keys()
-        if is_in_first and is_in_second:
-            if dicts[0][key] == dicts[1][key]:
-                result += f'    {key}: {dicts[0][key]}\n'
-            else:
-                result += f'  - {key}: {dicts[0][key]}\n'
-                result += f'  + {key}: {dicts[1][key]}\n'
-        elif is_in_first:
-            result += f'  - {key}: {dicts[0][key]}\n'
-        else:
-            result += f'  + {key}: {dicts[1][key]}\n'
-    result += '}'
-    return result
-
-
 def generate_diff(*paths):
     paths = [*paths]
     for i, path in enumerate(paths):
@@ -65,18 +40,14 @@ def generate_diff(*paths):
             mod = inspect.getmodule(frm[0])
             paths[i] = Path(mod.__file__).parent / paths[i].name
 
-    if paths[0].suffix == '.json':
-        python_dicts = list(map(lambda path: json.load(open(path)), paths))
-    else:
-        python_dicts = list(map(lambda path: yaml.load(open(path),
-                                Loader=Loader), paths))
-    diff = get_diff(python_dicts)
-    print(diff)
+    python_dicts = read_files(paths)
+    return get_diff(python_dicts)
 
 
 def main():
     args = parse_cli_args()
-    generate_diff(*args)
+    diff = generate_diff(*args)
+    print(diff)
 
 
 if __name__ == "__main__":
