@@ -1,4 +1,9 @@
-def convert_to_output_format(value):
+ADD = '  + '
+DEL = '  - '
+SAME = '    '
+
+
+def change_value(value):
     if value is True:
         return 'true'
     if value is False:
@@ -8,26 +13,66 @@ def convert_to_output_format(value):
     return value
 
 
-def get_diff(python_dicts):
-    dicts = []
-    for dct in python_dicts:
-        dct = {k: convert_to_output_format(v) for k, v in dct.items()}
-        dicts.append(dct)
-    merge_dict = {**dicts[0], **dicts[1]}
-    keys = sorted(list(merge_dict.keys()))
-    result = '{\n'
+def convert_to_output_format(dicts):
+    res = []
+    for dct in dicts:
+        dct = {k: change_value(v) for k, v in dct.items()}
+        res.append(dct)
+    return res
+
+
+def get_diff(dicts):
+    dicts = convert_to_output_format(dicts)
+    keys = sorted(list({**dicts[0], **dicts[1]}.keys()))
+    diff = []
     for key in keys:
-        is_in_first = key in dicts[0].keys()
-        is_in_second = key in dicts[1].keys()
-        if is_in_first and is_in_second:
-            if dicts[0][key] == dicts[1][key]:
-                result += f'    {key}: {dicts[0][key]}\n'
-            else:
-                result += f'  - {key}: {dicts[0][key]}\n'
-                result += f'  + {key}: {dicts[1][key]}\n'
-        elif is_in_first:
-            result += f'  - {key}: {dicts[0][key]}\n'
+        if all(map(lambda lst: isinstance(lst.get(key), dict), dicts)):
+            node = {
+                'diff': SAME,
+                'name': key,
+                'value': 'dict',
+                'children': get_diff([dicts[0].get(key), dicts[1].get(key)]),
+            }
+            diff.append(node)
         else:
-            result += f'  + {key}: {dicts[1][key]}\n'
-    result += '}'
-    return result
+            if dicts[0].get(key) == dicts[1].get(key):
+                node = {
+                    'diff': SAME,
+                    'name': key,
+                    'value': dicts[0].get(key),
+                }
+                diff.append(node)
+            else:
+                if dicts[0].get(key) is not None:
+                    if isinstance(dicts[0].get(key), dict):
+                        node = {
+                            'diff': DEL,
+                            'name': key,
+                            'value': 'dict',
+                            'children': get_diff([dicts[0].get(key),
+                                                 dicts[0].get(key)]),
+                        }
+                    else:
+                        node = {
+                            'diff': DEL,
+                            'name': key,
+                            'value': dicts[0].get(key),
+                        }
+                    diff.append(node)
+                if dicts[1].get(key) is not None:
+                    if isinstance(dicts[1].get(key), dict):
+                        node = {
+                            'diff': ADD,
+                            'name': key,
+                            'value': 'dict',
+                            'children': get_diff([dicts[1].get(key),
+                                                 dicts[1].get(key)]),
+                        }
+                    else:
+                        node = {
+                            'diff': ADD,
+                            'name': key,
+                            'value': dicts[1].get(key),
+                        }
+                    diff.append(node)
+    return diff

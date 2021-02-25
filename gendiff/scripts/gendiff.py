@@ -1,6 +1,7 @@
 import argparse
 import inspect
 from .parser import get_diff
+from .formatter import make_str
 from pathlib import Path
 import json
 import yaml
@@ -47,7 +48,7 @@ def generate_diff(*paths):
 def main():
     args = parse_cli_args()
     diff = generate_diff(*args)
-    print(diff)
+    print(make_str(diff))
 
 
 if __name__ == "__main__":
