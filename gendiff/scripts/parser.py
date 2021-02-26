@@ -1,8 +1,3 @@
-ADD = '  + '
-DEL = '  - '
-SAME = '    '
-
-
 def change_value(value):
     if value is True:
         return 'true'
@@ -38,23 +33,23 @@ def get_diff(dicts):  # noqa: C901
     diff = []
     for key in keys:
         if all(map(lambda lst: isinstance(lst.get(key), dict), dicts)):
-            diff.append(create_node(SAME, key, 'dict',
+            diff.append(create_node('same', key, 'dict',
                         get_diff([dicts[0].get(key), dicts[1].get(key)])))
         elif dicts[0].get(key) == dicts[1].get(key):
-            diff.append(create_node(SAME, key, dicts[0].get(key)))
+            diff.append(create_node('same', key, dicts[0].get(key)))
         else:
             if dicts[0].get(key) is not None:
                 if isinstance(dicts[0].get(key), dict):
-                    args = (DEL, key, 'dict',
+                    args = ('del', key, 'dict',
                             get_diff([dicts[0].get(key), dicts[0].get(key)]))
                 else:
-                    args = (DEL, key, dicts[0].get(key))
+                    args = ('del', key, dicts[0].get(key))
                 diff.append(create_node(*args))
             if dicts[1].get(key) is not None:
                 if isinstance(dicts[1].get(key), dict):
-                    args = (ADD, key, 'dict',
+                    args = ('add', key, 'dict',
                             get_diff([dicts[1].get(key), dicts[1].get(key)]))
                 else:
-                    args = (ADD, key, dicts[1].get(key))
+                    args = ('add', key, dicts[1].get(key))
                 diff.append(create_node(*args))
     return diff

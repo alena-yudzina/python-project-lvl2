@@ -8,7 +8,7 @@ except ImportError:
     from yaml import Loader
 from pathlib import Path
 from gendiff.scripts.gendiff import get_diff
-from gendiff.scripts.formatter import make_str
+from gendiff.scripts.format.formatter import make_str
 
 
 def get_fixture_path(file_name):
@@ -31,16 +31,18 @@ results = read(get_fixture_path('results.txt')).split('\n\n')
 
 def test_get_diff():
     assert make_str(get_diff([json.loads(plain_jsons[0]),
-                    json.loads(plain_jsons[1])])) == results[0]
+                    json.loads(plain_jsons[1])]), 'stylish') == results[0]
 
     assert make_str(get_diff([json.loads(plain_jsons[1]),
-                    json.loads(plain_jsons[2])])) == results[1]
+                    json.loads(plain_jsons[2])]), 'stylish') == results[1]
 
     assert make_str(get_diff([yaml.load(plain_yamls[1], Loader=Loader),
-                    yaml.load(plain_yamls[2], Loader=Loader)])) == results[1]
+                    yaml.load(plain_yamls[2], Loader=Loader)]),
+                    'stylish') == results[1]
 
     assert make_str(get_diff([json.loads(jsons[0]),
-                    json.loads(jsons[1])])) == results[2]
+                    json.loads(jsons[1])]), 'stylish') == results[2]
 
     assert make_str(get_diff([yaml.load(yamls[0], Loader=Loader),
-                    yaml.load(yamls[1], Loader=Loader)])) == results[2]
+                    yaml.load(yamls[1], Loader=Loader)]),
+                    'stylish') == results[2]

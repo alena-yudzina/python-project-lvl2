@@ -1,7 +1,7 @@
 import argparse
 import inspect
 from .parser import get_diff
-from .formatter import make_str
+from .format.formatter import make_str
 from pathlib import Path
 import json
 import yaml
@@ -29,11 +29,14 @@ def parse_cli_args():
     parser.add_argument('first_file', type=argparse.FileType('r'))
     parser.add_argument('second_file', type=argparse.FileType('r'))
     args = parser.parse_args()
-    return (args.first_file.name, args.second_file.name)
+    if not args.format:
+        args.format = 'stylish'
+    return (args.first_file.name, args.second_file.name, args.format)
 
 
-def generate_diff(*paths):
-    paths = [*paths]
+def generate_diff(*args):
+    first_file, second_file, format = args
+    paths = [first_file, second_file]
     for i, path in enumerate(paths):
         paths[i] = Path(path)
         if not paths[i].exists():
@@ -42,13 +45,13 @@ def generate_diff(*paths):
             paths[i] = Path(mod.__file__).parent / paths[i].name
 
     python_dicts = read_files(paths)
-    return get_diff(python_dicts)
+    return make_str(get_diff(python_dicts), format)
 
 
 def main():
     args = parse_cli_args()
     diff = generate_diff(*args)
-    print(make_str(diff))
+    print(diff)
 
 
 if __name__ == "__main__":
