@@ -21,58 +21,40 @@ def convert_to_output_format(dicts):
     return res
 
 
-def get_diff(dicts):
+def create_node(diff, name, value, children=None):
+    node = {
+        'diff': diff,
+        'name': name,
+        'value': value,
+    }
+    if children:
+        node['children'] = children
+    return node
+
+
+def get_diff(dicts):  # noqa: C901
     dicts = convert_to_output_format(dicts)
     keys = sorted(list({**dicts[0], **dicts[1]}.keys()))
     diff = []
     for key in keys:
         if all(map(lambda lst: isinstance(lst.get(key), dict), dicts)):
-            node = {
-                'diff': SAME,
-                'name': key,
-                'value': 'dict',
-                'children': get_diff([dicts[0].get(key), dicts[1].get(key)]),
-            }
-            diff.append(node)
+            diff.append(create_node(SAME, key, 'dict',
+                        get_diff([dicts[0].get(key), dicts[1].get(key)])))
+        elif dicts[0].get(key) == dicts[1].get(key):
+            diff.append(create_node(SAME, key, dicts[0].get(key)))
         else:
-            if dicts[0].get(key) == dicts[1].get(key):
-                node = {
-                    'diff': SAME,
-                    'name': key,
-                    'value': dicts[0].get(key),
-                }
-                diff.append(node)
-            else:
-                if dicts[0].get(key) is not None:
-                    if isinstance(dicts[0].get(key), dict):
-                        node = {
-                            'diff': DEL,
-                            'name': key,
-                            'value': 'dict',
-                            'children': get_diff([dicts[0].get(key),
-                                                 dicts[0].get(key)]),
-                        }
-                    else:
-                        node = {
-                            'diff': DEL,
-                            'name': key,
-                            'value': dicts[0].get(key),
-                        }
-                    diff.append(node)
-                if dicts[1].get(key) is not None:
-                    if isinstance(dicts[1].get(key), dict):
-                        node = {
-                            'diff': ADD,
-                            'name': key,
-                            'value': 'dict',
-                            'children': get_diff([dicts[1].get(key),
-                                                 dicts[1].get(key)]),
-                        }
-                    else:
-                        node = {
-                            'diff': ADD,
-                            'name': key,
-                            'value': dicts[1].get(key),
-                        }
-                    diff.append(node)
+            if dicts[0].get(key) is not None:
+                if isinstance(dicts[0].get(key), dict):
+                    args = (DEL, key, 'dict',
+                            get_diff([dicts[0].get(key), dicts[0].get(key)]))
+                else:
+                    args = (DEL, key, dicts[0].get(key))
+                diff.append(create_node(*args))
+            if dicts[1].get(key) is not None:
+                if isinstance(dicts[1].get(key), dict):
+                    args = (ADD, key, 'dict',
+                            get_diff([dicts[1].get(key), dicts[1].get(key)]))
+                else:
+                    args = (ADD, key, dicts[1].get(key))
+                diff.append(create_node(*args))
     return diff
