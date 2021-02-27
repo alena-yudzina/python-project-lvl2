@@ -1,13 +1,17 @@
+def difference_format(diff):
+    if diff == 'add':
+        diff = '  + '
+    elif diff == 'del':
+        diff = '  - '
+    else:
+        diff = '    '
+    return diff
+
+
 def stylish(diff, lvl=0):
     view = '{\n'
     for diff_item in diff:
-        diff = diff_item['diff']
-        if diff == 'add':
-            diff = '  + '
-        elif diff == 'del':
-            diff = '  - '
-        else:
-            diff = '    '
+        diff = difference_format(diff_item['diff'])
         children = diff_item.get('children')
         if children:
             children = stylish(diff_item["children"], lvl + 1)

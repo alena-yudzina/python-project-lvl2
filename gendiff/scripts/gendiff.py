@@ -38,13 +38,17 @@ def generate_diff(*args):
     first_file, second_file, format = args
     paths = [first_file, second_file]
     for i, path in enumerate(paths):
+
         paths[i] = Path(path)
         if not paths[i].exists():
             frm = inspect.stack()[1]
             mod = inspect.getmodule(frm[0])
             paths[i] = Path(mod.__file__).parent / paths[i].name
-
-    python_dicts = read_files(paths)
+        
+    try:
+        python_dicts = read_files(paths)
+    except FileNotFoundError:
+        return print('Wrong file path')
     return make_str(get_diff(python_dicts), format)
 
 
