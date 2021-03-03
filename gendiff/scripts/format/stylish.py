@@ -1,3 +1,12 @@
+def output_view(value):
+    if value is True:
+        return 'true'
+    if value is False:
+        return 'false'
+    if value is None:
+        return 'null'
+    return value
+
 def dict_view(dct, lvl):
     keys = sorted(list(dct.keys()))
     res_str = '{\n'
@@ -7,7 +16,7 @@ def dict_view(dct, lvl):
         if isinstance(dct[key], dict):
             res_str += dict_view(dct[key], lvl + 1) + '\n'
         else:
-            res_str += f'{dct[key]}\n'
+            res_str += f'{output_view(dct[key])}\n'
 
     return res_str + lvl * 4 * ' ' + '}'
 
@@ -19,7 +28,7 @@ def add_string(status, key, value, lvl):
     str_ = '{status}{key}: {value}\n'.format(
         status=lvl * '    ' + status,
         key=key,
-        value=value,
+        value=output_view(value),
     )
 
     return str_

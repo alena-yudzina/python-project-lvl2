@@ -1,8 +1,18 @@
+def output_view(value):
+    if value is True:
+        return 'true'
+    if value is False:
+        return 'false'
+    if value is None:
+        return 'null'
+    return value
+
+
 def value_view(value):
     if isinstance(value, dict):
         return '[complex value]'
-    elif value in ('true', 'false', 'null'):
-        return value
+    elif value in (True, False, None):
+        return output_view(value)
     elif isinstance(value, str):
         return f"'{value}'"
     return value
