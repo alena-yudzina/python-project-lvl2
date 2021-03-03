@@ -45,3 +45,10 @@ def test_get_diff():
     assert make_str(get_diff([yaml.load(yamls[0], Loader=Loader),
                     yaml.load(yamls[1], Loader=Loader)]),
                     'stylish') == results[2]
+
+    assert make_str(get_diff([json.loads(jsons[0]),
+                    json.loads(jsons[1])]), 'plain') == results[3]
+
+    assert make_str(get_diff([yaml.load(yamls[0], Loader=Loader),
+                    yaml.load(yamls[1], Loader=Loader)]),
+                    'plain') == results[3]
