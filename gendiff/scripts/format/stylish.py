@@ -7,6 +7,7 @@ def output_view(value):
         return 'null'
     return value
 
+
 def dict_view(dct, lvl):
     keys = sorted(list(dct.keys()))
     res_str = '{\n'
