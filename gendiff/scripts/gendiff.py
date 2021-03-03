@@ -1,14 +1,12 @@
 import argparse
 import inspect
+import json
+import yaml
+
 from .parser import get_diff
 from .format.formatter import make_str
 from pathlib import Path
-import json
-import yaml
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
+from yaml import Loader
 
 
 def read_files(paths):
@@ -44,7 +42,7 @@ def generate_diff(*args):
             frm = inspect.stack()[1]
             mod = inspect.getmodule(frm[0])
             paths[i] = Path(mod.__file__).parent / paths[i].name
-        
+
     try:
         python_dicts = read_files(paths)
     except FileNotFoundError:
