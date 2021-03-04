@@ -12,7 +12,7 @@ from gendiff.scripts.format.formatter import make_str
 
 def get_fixture_path(file_name):
     current_dir = Path(__file__).parent
-    return current_dir/'fixtures'/file_name
+    return current_dir / 'fixtures' / file_name
 
 
 def read(file_path):
