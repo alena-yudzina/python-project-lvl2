@@ -32,8 +32,7 @@ def parse_cli_args():
     return (args.first_file.name, args.second_file.name, args.format)
 
 
-def generate_diff(*args):
-    first_file, second_file, format = args
+def generate_diff(first_file, second_file, format='stylish'):
     paths = [first_file, second_file]
     for i, path in enumerate(paths):
 

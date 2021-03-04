@@ -3,7 +3,7 @@ from .plain import plain
 import json
 
 
-def make_str(diff, format='stylish'):
+def make_str(diff, format):
     if format == 'stylish':
         return stylish(diff)
     if format == 'plain':
